@@ -4,7 +4,7 @@ Programa para análise de grafos direcionados e não direcionados a partir de ar
 
 Feito para a Disciplina GCC262 - Grafos e suas Aplicações
 
-Professor: Meyron César de O. Moreira
+Professor: Mayron César de O. Moreira
 Aluno: Gilson dos Santos Júnior
 
 ## 📋 Funcionalidades Principais
