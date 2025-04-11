@@ -1,5 +1,4 @@
 import os
-from collections import defaultdict
 import heapq
 
 
@@ -284,7 +283,7 @@ def exibir_metricas(matriz_adjacencia, matriz_predessores):
         f"{calcular_quantidade_arestas(matriz_adjacencia)}"
     )
     print(
-        f"3. Quantidade de arcos: " 
+        f"3. Quantidade de arcos: "
         f"{calcular_quantidade_arcos(matriz_adjacencia)}"
     )
     print(
@@ -300,7 +299,7 @@ def exibir_metricas(matriz_adjacencia, matriz_predessores):
         f"{calcular_quantidade_arcos_requeridos(matriz_adjacencia)}"
     )
     print(
-        f"7. Densidade do grafo: " 
+        f"7. Densidade do grafo: "
         f"{calcular_densidade_grafo(matriz_adjacencia):.4f}"
     )
     print(
@@ -316,7 +315,7 @@ def exibir_metricas(matriz_adjacencia, matriz_predessores):
         f"{calcular_grau_maximo_vertices(matriz_adjacencia)}"
     )
     print(
-        f"11. Intermediação: " 
+        f"11. Intermediação: "
         f"{calcular_intermediacao(matriz_adjacencia, matriz_predessores)}"
     )
     print(
@@ -324,7 +323,7 @@ def exibir_metricas(matriz_adjacencia, matriz_predessores):
         f"{calcular_caminho_medio(matriz_adjacencia, matriz_predessores):.4f}"
     )
     print(
-        f"13. Diâmetro: " 
+        f"13. Diâmetro: "
         f"{calcular_diametro(matriz_adjacencia, matriz_predessores)}"
     )
 
@@ -332,7 +331,6 @@ def exibir_metricas(matriz_adjacencia, matriz_predessores):
 def main():
     print("Bem-vindo ao programa de análise de grafos!")
     matriz_adjacencia = None
-    nos = None
 
     while True:
         if matriz_adjacencia is None:
