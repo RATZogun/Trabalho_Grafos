@@ -1,6 +1,11 @@
-# Análise de Grafos - Programa em Python
+# Trabalho de Grafos - Programa em Python
 
 Programa para análise de grafos direcionados e não direcionados a partir de arquivos de texto, calculando diversas métricas e propriedades dos grafos.
+
+Feito para a Disciplina GCC262 - Grafos e suas Aplicações
+
+Professor: Meyron César de O. Moreira
+Aluno: Gilson dos Santos Júnior
 
 ## 📋 Funcionalidades Principais
 
