@@ -43,7 +43,7 @@ Implementação do algoritmo de Dijkstra para encontrar caminhos mínimos
 ### `calcular_intermediacao(matriz_adjacencia, matriz_predessores)`
 Calcula a centralidade de intermediação para cada vértice
 
-### `exibir_metricas(matriz_adjacencia, matriz_predessores)**
+### `exibir_metricas(matriz_adjacencia, matriz_predessores)`
 Exibe todas as métricas calculadas em formato legível
 
 ## 📊 Métricas Calculadas
@@ -55,9 +55,3 @@ Exibe todas as métricas calculadas em formato legível
 | Diâmetro | Maior distância entre qualquer par de vértices |
 | Caminho Médio | Média das distâncias entre todos os pares de vértices |
 | Grau dos Vértices | Mínimo e máximo de conexões por vértice |
-
-## ▶️ Como Usar
-
-1. Clone o repositório
-```bash
-git clone https://github.com/seu-usuario/analise-grafos.git
