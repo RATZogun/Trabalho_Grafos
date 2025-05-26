@@ -1,5 +1,7 @@
 import os
 import heapq
+from carp_solver import CARPSolver
+from carp_reader import ler_instancia_carp
 
 
 def modelar_grafo(conteudo):
@@ -62,7 +64,10 @@ def ler_arquivo(nome_arquivo):
             conteudo = file.read()
             return conteudo
     except FileNotFoundError:
-        return "Erro: O arquivo não foi encontrado. Verifique o nome e tente novamente."
+        return (
+            "Erro: O arquivo não foi encontrado. "
+            "Verifique o nome e tente novamente."
+        )
     except Exception as e:
         return f"Erro ao acessar o arquivo: {e}"
 
@@ -96,9 +101,7 @@ def calcular_quantidade_vertices_requeridos(matriz_adjacencia):
             if matriz_adjacencia[i][j] != 0:
                 vertices_requeridos.add(i)
                 vertices_requeridos.add(j)
-    return len(
-        vertices_requeridos
-    )  # Retorna a quantidade de vértices únicos requeridos
+    return len(vertices_requeridos)  # Retorna a quantidade de vértices únicos
 
 
 def calcular_quantidade_arestas_requeridas(matriz_adjacencia):
@@ -107,9 +110,7 @@ def calcular_quantidade_arestas_requeridas(matriz_adjacencia):
         for j in range(len(matriz_adjacencia[i])):
             if matriz_adjacencia[i][j] != 0:
                 quantidade_arestas_requeridas += 1
-    return (
-        quantidade_arestas_requeridas // 2
-    )  # Dividir por 2 para evitar contagem dupla
+    return quantidade_arestas_requeridas // 2  # Dividir por 2
 
 
 def calcular_quantidade_arcos_requeridos(matriz_adjacencia):
@@ -118,7 +119,7 @@ def calcular_quantidade_arcos_requeridos(matriz_adjacencia):
         for j in range(len(matriz_adjacencia[i])):
             if matriz_adjacencia[i][j] != 0:
                 quantidade_arcos_requeridos += 1
-    return quantidade_arcos_requeridos  # Contagem direta, pois arcos são direcionais
+    return quantidade_arcos_requeridos
 
 
 def calcular_densidade_grafo(matriz_adjacencia):
@@ -148,7 +149,8 @@ def retorna_componentes_conectados(matriz_adjacencia):
                     visitados.add(vertice)
                     componente.append(vertice)
                     for j in range(len(matriz_adjacencia[vertice])):
-                        if matriz_adjacencia[vertice][j] != 0 and j not in visitados:
+                        if (matriz_adjacencia[vertice][j] != 0 and 
+                            j not in visitados):
                             pilha.append(j)
 
             componentes.append(componente)
@@ -160,7 +162,8 @@ def calcular_grau_minimo_vertices(matriz_adjacencia):
     grau_minimo = float("inf")
     for i in range(len(matriz_adjacencia)):
         grau = sum(
-            1 for j in range(len(matriz_adjacencia[i])) if matriz_adjacencia[i][j] != 0
+            1 for j in range(len(matriz_adjacencia[i]))
+            if matriz_adjacencia[i][j] != 0
         )
         if grau < grau_minimo:
             grau_minimo = grau
@@ -171,7 +174,8 @@ def calcular_grau_maximo_vertices(matriz_adjacencia):
     grau_maximo = float("-inf")
     for i in range(len(matriz_adjacencia)):
         grau = sum(
-            1 for j in range(len(matriz_adjacencia[i])) if matriz_adjacencia[i][j] != 0
+            1 for j in range(len(matriz_adjacencia[i]))
+            if matriz_adjacencia[i][j] != 0
         )
         if grau > grau_maximo:
             grau_maximo = grau
@@ -191,11 +195,11 @@ def dijkstra(matriz, origem, matriz_predessores):
 
         for vizinho in range(len(matriz[no_atual])):
             if matriz[no_atual][vizinho] != 0:
-                nova_distancia = distancia_atual + matriz[no_atual][vizinho]
-                if nova_distancia < distancias[vizinho]:
-                    distancias[vizinho] = nova_distancia
+                nova_dist = distancia_atual + matriz[no_atual][vizinho]
+                if nova_dist < distancias[vizinho]:
+                    distancias[vizinho] = nova_dist
                     matriz_predessores[origem][vizinho] = no_atual
-                    heapq.heappush(heap, (nova_distancia, vizinho))
+                    heapq.heappush(heap, (nova_dist, vizinho))
 
     return distancias
 
@@ -328,9 +332,99 @@ def exibir_metricas(matriz_adjacencia, matriz_predessores):
     )
 
 
+def resolver_carp(matriz_adjacencia, nome_arquivo):
+    """Resolve o problema do CARP para o arquivo atual"""
+    try:
+        # Cria o diretório best_solutions se não existir
+        if not os.path.exists("best_solutions"):
+            os.makedirs("best_solutions")
+        
+        # Lê a instância usando o arquivo atual
+        matriz_adjacencia, arestas_requeridas, capacidade, deposito = \
+            ler_instancia_carp(os.path.join("selected_instances", nome_arquivo))
+        
+        print("\nInformações da instância:")
+        print(f"- Número de vértices: {len(matriz_adjacencia)}")
+        print(
+            "- Número de arestas requeridas: "
+            f"{sum(1 for a in arestas_requeridas if a.requerida)}"
+        )
+        print(f"- Capacidade do veículo: {capacidade}")
+        print(f"- Vértice do depósito: {deposito}")
+        
+        # Cria e executa o solver
+        solver = CARPSolver(
+            matriz_adjacencia,
+            arestas_requeridas,
+            capacidade,
+            deposito
+        )
+        
+        print("\nResolvendo o problema...")
+        rotas, custo_total, clocks = solver.resolver()
+        
+        print("\nSolução encontrada:")
+        print(f"- Custo total: {custo_total}")
+        print(f"- Número de rotas: {len(rotas)}")
+        print(f"- Tempo de execução: {clocks/1e9:.3f} segundos")
+        
+        # Gera o arquivo de solução na pasta best_solutions
+        nome_solucao = os.path.join(
+            "best_solutions",
+            f"sol-{nome_arquivo[:-4]}.dat"
+        )
+        solver.gerar_arquivo_solucao(rotas, custo_total, nome_solucao, clocks)
+        print("\nSolução salva em:", nome_solucao)
+        
+    except Exception as e:
+        print("Erro ao resolver a instância:", e)
+
+
+def resolver_todas_instancias():
+    """Resolve todas as instâncias presentes na pasta selected_instances"""
+    try:
+        # Lista todos os arquivos .dat na pasta selected_instances
+        arquivos = [
+            f for f in os.listdir("selected_instances")
+            if f.endswith(".dat")
+        ]
+        
+        if not arquivos:
+            print("\nNenhum arquivo .dat encontrado na pasta selected_instances")
+            return
+        
+        print(f"\nEncontrados {len(arquivos)} arquivos para processar:")
+        for arquivo in arquivos:
+            print(f"- {arquivo}")
+        
+        # Processa cada arquivo
+        for i, arquivo in enumerate(arquivos, 1):
+            print(f"\n[{i}/{len(arquivos)}] Processando {arquivo}...")
+            
+            try:
+                # Lê e modela o grafo
+                conteudo = ler_arquivo(arquivo)
+                if conteudo.startswith("Erro"):
+                    print(f"Erro ao ler arquivo {arquivo}:")
+                    print(conteudo)
+                    continue
+                
+                matriz_adjacencia, _ = modelar_grafo(conteudo)
+                resolver_carp(matriz_adjacencia, arquivo)
+                
+            except Exception as e:
+                print(f"Erro ao processar arquivo {arquivo}:", e)
+        
+        print("\nProcessamento concluído!")
+        
+    except Exception as e:
+        print("Erro ao listar arquivos:", e)
+
+
 def main():
     print("Bem-vindo ao programa de análise de grafos!")
     matriz_adjacencia = None
+    nome_arquivo_atual = None
 
     while True:
         if matriz_adjacencia is None:
@@ -344,22 +438,36 @@ def main():
                 continue
             else:
                 matriz_adjacencia, matriz_predessores = modelar_grafo(conteudo)
+                nome_arquivo_atual = arquivo
 
         print("\nMenu:")
         print("1. Ler novo arquivo")
         print("2. Exibir matriz do grafo")
         print("3. Exibir métricas do grafo")
-        print("4. Fechar programa")
+        print("4. Otimizar roteamento de arestas")
+        print("5. Otimizar todos os roteamentos")
+        print("6. Fechar programa")
 
         opcao = input("Escolha uma opção: ")
 
         if opcao == "1":
             matriz_adjacencia = None
+            nome_arquivo_atual = None
         elif opcao == "2":
             imprimir_matriz(matriz_adjacencia, matriz_predessores)
         elif opcao == "3":
             exibir_metricas(matriz_adjacencia, matriz_predessores)
         elif opcao == "4":
+            if matriz_adjacencia is None:
+                print("Por favor, carregue um arquivo primeiro.")
+            else:
+                resolver_carp(
+                    matriz_adjacencia,
+                    nome_arquivo_atual
+                )
+        elif opcao == "5":
+            resolver_todas_instancias()
+        elif opcao == "6":
             print("Encerrando o programa. Até logo!")
             break
         else:
